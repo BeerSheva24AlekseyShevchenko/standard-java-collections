@@ -1,37 +1,38 @@
 package telran.collections;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.List;
+import java.util.Map;
 
 public class MapTasks {
     
     public static void displayOccurrences(String[] strings) {
-        HashMap<String, Long> map = getOccurrencesMap(strings);
-        TreeMap<Long, TreeSet<String>> sortedMap = getSortedOccurrencesMap(map);
-        displaySortedOccurrences(sortedMap);
+        Map<String, Integer> stringsMap = new HashMap<>();
+        Arrays.stream(strings).forEach(s -> stringsMap.merge(s, 1, Integer::sum));
+
+        Integer max = 0;
+        Map<Integer, List<String>> occurrencesMap = new HashMap<>();
+        for (Map.Entry<String, Integer> entry : stringsMap.entrySet()) {
+            Integer occurrence = entry.getValue();
+            String str = entry.getKey();
+            occurrencesMap.computeIfAbsent(occurrence, i -> new ArrayList<>()).add(str);
+            if (occurrence > max) {
+                max = occurrence;
+            }
+        }
+
+        for (int index = max, count = 0; count < occurrencesMap.size(); index--) {
+            if (occurrencesMap.containsKey(index)) {
+                count++;
+                displayOccurrence(index, occurrencesMap.get(index));
+            }
+        }
+
     }
 
-    private static void displaySortedOccurrences(TreeMap<Long, TreeSet<String>> sortedMap) {
-        sortedMap.forEach((k, v) -> {
-            v.forEach(i -> System.out.printf("%s -> %d\n", i, k));
-        });
-        
-    }
-
-    private static TreeMap<Long, TreeSet<String>> getSortedOccurrencesMap(HashMap<String, Long> occurrences) {
-        TreeMap<Long, TreeSet<String>> map = new TreeMap<>(Comparator.reverseOrder());
-        occurrences.entrySet().forEach(i -> map.computeIfAbsent(i.getValue(), k -> new TreeSet<>()).add(i.getKey()));
-
-        return map;
-    }
-
-    private static HashMap<String, Long> getOccurrencesMap(String[] strings) {
-        HashMap<String, Long> map = new HashMap<>();
-        Arrays.stream(strings).forEach(s -> map.merge(s, 1l, Long::sum));
-
-        return map;
+    private static void displayOccurrence(Integer occurrence, List<String> list) {
+        list.forEach(i -> System.out.printf("%s -> %d\n", i, occurrence));
     }
 }
