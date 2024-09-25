@@ -5,8 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
+import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -72,13 +71,20 @@ public class MapTasks {
                 .collect(Collectors.groupingBy(n -> Integer.toString(n).length(), Collectors.counting()));
     }
 
-    public static void displayDigitsDistribution(int[] arr) {
-        Arrays.stream(arr)
+    public static void displayDigitsDistribution() {
+        Random random = new Random();
+
+        random.ints(1_000_000, 0, Integer.MAX_VALUE)
             .boxed()
+            .<Integer>mapMulti((num, acc) -> {
+                while (num > 0) {
+                    acc.accept(num % 10);
+                    num /= 10;
+                }
+            })
             .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
             .entrySet()
             .stream()
-            .filter(i -> Integer.toString(i.getKey()).length() == 1)
             .sorted((e1, e2) -> {
                 int res = Long.compare(e2.getValue(), e1.getValue());
                 return res == 0 ? e1.getKey().compareTo(e2.getKey()) : res;

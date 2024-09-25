@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static telran.collections.MapTasks.*;
 
 import java.util.Map;
-import java.util.Random;
 
 import org.junit.jupiter.api.Test;
 
@@ -24,10 +23,7 @@ public class MapTasksTest {
 
     @Test
     void displayDigitsDistributionTest() {
-        Random random = new Random();
-        int[] arr = random.ints(0, Integer.MAX_VALUE).limit(1_000_000).toArray(); 
-
-        displayDigitsDistribution(arr);
+        displayDigitsDistribution();
     }
 
     @Test
