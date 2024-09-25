@@ -73,60 +73,25 @@ public class MapTasks {
     }
 
     public static void displayDigitsDistribution(int[] arr) {
-        final int DISPLAY_LIMIT = 10;
-        Map<Integer, Long> map = getMapIntToOccurrences(arr);
-
-        AtomicLong maxOccurrence = new AtomicLong(0);
-        Map<Long, List<Integer>> occurrencesMap = getMapOccurrencesToInt(map, i -> {
-            if (i.getValue() > maxOccurrence.get()) {
-                maxOccurrence.set(i.getValue());
-            }
-        });
-
-        displayMapOccurrences(occurrencesMap, DISPLAY_LIMIT, maxOccurrence.get());
-    }
-
-    private static Map<Integer, Long> getMapIntToOccurrences(int[] arr) {
-        return Arrays.stream(arr).boxed()
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-    }
-
-    private static Map<Long, List<Integer>> getMapOccurrencesToInt(Map<Integer, Long> map,
-            Consumer<Map.Entry<Integer, Long>> callback) {
-        return map.entrySet().stream()
-                .peek(callback)
-                .collect(Collectors.groupingBy(
-                        Map.Entry::getValue,
-                        Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
-    }
-
-    private static void displayMapOccurrences(Map<Long, List<Integer>> occurrencesMap, int limit, long occurrence) {
-        int count = 0;
-        while (occurrence > 0 && count < limit) {
-            if (occurrencesMap.containsKey(occurrence)) {
-                List<Integer> values = occurrencesMap.get(occurrence);
-                displayListOccurrences(values, occurrence, limit);
-                count += values.size();
-            }
-            occurrence--;
-        }
-    }
-
-    private static void displayListOccurrences(List<Integer> values, long occurrence, int limit) {
-        values.stream().limit(limit).forEach(i -> System.out.printf("%d -> %d\n", i, occurrence));
+        Arrays.stream(arr)
+            .boxed()
+            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+            .entrySet()
+            .stream()
+            .filter(i -> Integer.toString(i.getKey()).length() == 1)
+            .sorted((e1, e2) -> {
+                int res = Long.compare(e2.getValue(), e1.getValue());
+                return res == 0 ? e1.getKey().compareTo(e2.getKey()) : res;
+            })
+            .forEach(i -> System.out.printf("%d -> %d\n", i.getKey(), i.getValue()));
     }
 
     public static ParenthesesMaps getParenthesesMaps(Character[][] openCloseParentheses) {
-        return Arrays.stream(openCloseParentheses).collect(
-            () -> new ParenthesesMaps(new HashMap<>(), new HashMap<>()),
-            (acc, item) -> {
-                acc.openCloseMap().put(item[0], item[1]);
-                acc.closeOpenMap().put(item[1], item[0]);
-            },
-            (left, right) -> {
-                left.openCloseMap().putAll(right.openCloseMap());
-                left.closeOpenMap().putAll(right.closeOpenMap());
-            }
-        );
+        Map<Character, Character> openCloseMap = Arrays.stream(openCloseParentheses)
+                .collect(Collectors.toMap(pair -> pair[0], pair -> pair[1]));
+        Map<Character, Character> closeOpenMap = openCloseMap.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+
+        return new ParenthesesMaps(openCloseMap, closeOpenMap);
     }
 }

@@ -25,7 +25,7 @@ public class MapTasksTest {
     @Test
     void displayDigitsDistributionTest() {
         Random random = new Random();
-        int[] arr = random.ints(0, Integer.MAX_VALUE).limit(2_000_000).toArray(); 
+        int[] arr = random.ints(0, Integer.MAX_VALUE).limit(1_000_000).toArray(); 
 
         displayDigitsDistribution(arr);
     }
